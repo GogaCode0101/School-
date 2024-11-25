@@ -3,7 +3,6 @@
 import tkinter as tk
 from tkinter import messagebox
 
-
 class MainWindow:
     def __init__(self, root, user):
         """
@@ -13,16 +12,16 @@ class MainWindow:
         """
         self.root = root
         self.user = user
-        self.root.title("Личный кабинет")
-        self.root.geometry("400x400")
+        self.root.title(f"Личный кабинет - {user[1]}")
+        self.root.geometry("500x400")
 
         # Заголовок
         self.label = tk.Label(self.root, text=f"Добро пожаловать, {user[1]}!", font=("Arial", 16))
-        self.label.pack(pady=10)
+        self.label.grid(row=0, column=0, columnspan=2, pady=20)
 
         # Кнопки действий
         self.buttons_frame = tk.Frame(self.root)
-        self.buttons_frame.pack(pady=20)
+        self.buttons_frame.grid(row=1, column=0, columnspan=2, pady=10)
 
         actions = [
             ("Посмотреть домашнее задание", self.view_homework),
@@ -33,9 +32,19 @@ class MainWindow:
             ("Чат с преподавателем", self.chat_with_teacher),
         ]
 
+        # Размещение кнопок в сетке
+        row, col = 0, 0
         for text, command in actions:
-            btn = tk.Button(self.buttons_frame, text=text, width=30, command=command)
-            btn.pack(pady=5)
+            btn = tk.Button(self.buttons_frame, text=text, width=30, command=command, font=('Arial', 12), bg="#4CAF50", fg="white")
+            btn.grid(row=row, column=col, pady=5, padx=5)
+            row += 1
+            if row > 2:  # после 3 кнопок начинаем новую колонку
+                row = 0
+                col += 1
+
+        # Кнопка выхода
+        self.button_logout = tk.Button(self.root, text="Выйти", font=('Arial', 14), width=20, bg="#f44336", fg="white", command=self.logout)
+        self.button_logout.grid(row=2, column=0, columnspan=2, pady=20)
 
     def view_homework(self):
         """Открыть окно для просмотра домашнего задания."""
@@ -60,3 +69,11 @@ class MainWindow:
     def chat_with_teacher(self):
         """Открыть окно чата с преподавателем."""
         messagebox.showinfo("Чат", "Здесь можно общаться с преподавателем!")
+
+    def logout(self):
+        """Закрыть окно и вернуться на экран авторизации."""
+        self.root.destroy()
+        from login_window import LoginWindow
+        root = tk.Tk()
+        login_window = LoginWindow(root)
+        login_window.run()
