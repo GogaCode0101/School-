@@ -8,20 +8,22 @@ class LoginWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("Авторизация")
-        self.root.geometry("300x200")
+        self.root.geometry("400x300")
 
-        self.label_login = tk.Label(self.root, text="Логин:")
-        self.label_login.pack(pady=5)
-        self.entry_login = tk.Entry(self.root)
+        # Лейбл и поля для ввода логина и пароля
+        self.label_login = tk.Label(self.root, text="Логин:", font=('Arial', 14))
+        self.label_login.pack(pady=10)
+        self.entry_login = tk.Entry(self.root, font=('Arial', 14))
         self.entry_login.pack(pady=5)
 
-        self.label_password = tk.Label(self.root, text="Пароль:")
-        self.label_password.pack(pady=5)
-        self.entry_password = tk.Entry(self.root, show="*")
+        self.label_password = tk.Label(self.root, text="Пароль:", font=('Arial', 14))
+        self.label_password.pack(pady=10)
+        self.entry_password = tk.Entry(self.root, show="*", font=('Arial', 14))
         self.entry_password.pack(pady=5)
 
-        self.button_login = tk.Button(self.root, text="Войти", command=self.login)
-        self.button_login.pack(pady=10)
+        # Кнопка для входа
+        self.button_login = tk.Button(self.root, text="Войти", command=self.login, font=('Arial', 14), bg="#4CAF50", fg="white", width=20)
+        self.button_login.pack(pady=20)
 
     def login(self):
         """Обработчик кнопки входа."""
