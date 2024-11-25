@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
+
 class MainWindow:
     def __init__(self, root, user):
         """
@@ -48,27 +49,147 @@ class MainWindow:
 
     def view_homework(self):
         """Открыть окно для просмотра домашнего задания."""
-        messagebox.showinfo("Домашнее задание", "Здесь можно увидеть домашнее задание!")
+        homework_window = tk.Toplevel(self.root)
+        homework_window.title("Домашнее задание")
+        homework_window.geometry("400x300")
+
+        homework_text = """
+        1. Математика: Упражнение 5, страницы 30-35.
+        2. Физика: Задача 3, страницы 22-23.
+        3. Химия: Подготовить отчет о лабораторной работе.
+        """
+
+        homework_display = tk.Text(homework_window, width=50, height=15, wrap=tk.WORD)
+        homework_display.insert(tk.END, homework_text)
+        homework_display.config(state=tk.DISABLED)
+        homework_display.pack(pady=20)
 
     def submit_homework(self):
-        """Открыть окно для отправки домашнего задания."""
-        messagebox.showinfo("Сдача домашнего задания", "Здесь можно сдать домашнее задание!")
+        """Открыть окно для отправки домашнего задания с выбором предмета."""
+        submit_window = tk.Toplevel(self.root)
+        submit_window.title("Выбор предмета для сдачи домашнего задания")
+        submit_window.geometry("300x200")
+
+        subject_label = tk.Label(submit_window, text="Выберите предмет:")
+        subject_label.pack(pady=10)
+
+        subjects = ["Математика", "Физика", "Химия", "Биология", "История"]
+        subject_var = tk.StringVar(submit_window)
+        subject_var.set(subjects[0])
+
+        subject_menu = tk.OptionMenu(submit_window, subject_var, *subjects)
+        subject_menu.pack(pady=10)
+
+        next_button = tk.Button(submit_window, text="Далее", command=lambda: self.choose_homework_file(submit_window, subject_var))
+        next_button.pack(pady=10)
+
+    def choose_homework_file(self, submit_window, subject_var):
+        subject = subject_var.get()
+        file_path = filedialog.askopenfilename(title=f"Выберите файл для {subject}", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
+
+        if file_path:
+            messagebox.showinfo("Сдача домашнего задания", f"Домашнее задание по {subject} ({file_path}) успешно отправлено!")
+            submit_window.destroy()
+        else:
+            messagebox.showwarning("Отмена", "Вы не выбрали файл для отправки!")
 
     def view_attendance(self):
         """Открыть окно для просмотра посещаемости."""
-        messagebox.showinfo("Посещаемость", "Здесь можно увидеть посещаемость!")
+        attendance_window = tk.Toplevel(self.root)
+        attendance_window.title("Посещаемость")
+        attendance_window.geometry("400x300")
+
+        attendance_text = """
+        Понедельник: Присутствовал
+        Вторник: Пропущено 1 занятие
+        Среда: Присутствовал
+        Четверг: Пропущено 2 занятия
+        Пятница: Присутствовал
+        """
+
+        attendance_display = tk.Text(attendance_window, width=50, height=15, wrap=tk.WORD)
+        attendance_display.insert(tk.END, attendance_text)
+        attendance_display.config(state=tk.DISABLED)
+        attendance_display.pack(pady=20)
 
     def view_schedule(self):
         """Открыть окно для просмотра расписания."""
-        messagebox.showinfo("Расписание", "Здесь можно увидеть расписание!")
+        schedule_window = tk.Toplevel(self.root)
+        schedule_window.title("Ваше расписание")
+        schedule_window.geometry("400x300")
+
+        schedule_text = """
+        Понедельник:
+        8:30 - Математика
+        10:00 - Физика
+        12:00 - Химия
+
+        Вторник:
+        9:00 - Биология
+        11:00 - История
+        13:00 - Математика
+
+        Среда:
+        10:00 - Физика
+        12:00 - Химия
+        14:00 - Биология
+        """
+
+        schedule_display = tk.Text(schedule_window, width=50, height=15, wrap=tk.WORD)
+        schedule_display.insert(tk.END, schedule_text)
+        schedule_display.config(state=tk.DISABLED)
+        schedule_display.pack(pady=20)
 
     def view_grades(self):
         """Открыть окно для просмотра успеваемости."""
-        messagebox.showinfo("Успеваемость", "Здесь можно увидеть успеваемость!")
+        grades_window = tk.Toplevel(self.root)
+        grades_window.title("Успеваемость")
+        grades_window.geometry("400x300")
+
+        # Пример успеваемости (можно заменить на данные из базы данных)
+        grades_text = """
+        Математика: 4
+        Физика: 5
+        Химия: 3
+        Биология: 5
+        История: 4
+        """
+
+        # Отображаем успеваемость в Text виджете
+        grades_display = tk.Text(grades_window, width=50, height=15, wrap=tk.WORD)
+        grades_display.insert(tk.END, grades_text)
+        grades_display.config(state=tk.DISABLED)
+        grades_display.pack(pady=20)
 
     def chat_with_teacher(self):
         """Открыть окно чата с преподавателем."""
-        messagebox.showinfo("Чат", "Здесь можно общаться с преподавателем!")
+        chat_window = tk.Toplevel(self.root)
+        chat_window.title("Чат с преподавателем")
+        chat_window.geometry("400x300")
+
+        self.text_area = tk.Text(chat_window, width=45, height=15, wrap=tk.WORD, state=tk.DISABLED)
+        self.text_area.grid(row=0, column=0, padx=10, pady=10)
+
+        self.message_entry = tk.Entry(chat_window, width=45)
+        self.message_entry.grid(row=1, column=0, padx=10, pady=10)
+
+        self.send_button = tk.Button(chat_window, text="Отправить", width=20, command=self.send_message)
+        self.send_button.grid(row=2, column=0, pady=10)
+
+    def send_message(self):
+        message = self.message_entry.get()
+        if message:
+            self.display_message(f"Вы: {message}")
+            self.message_entry.delete(0, tk.END)
+            self.display_message(f"Преподаватель: Ответ на ваше сообщение.")
+        else:
+            messagebox.showwarning("Ошибка", "Введите сообщение для отправки.")
+
+    def display_message(self, message):
+        self.text_area.config(state=tk.NORMAL)
+        self.text_area.insert(tk.END, message + "\n")
+        self.text_area.config(state=tk.DISABLED)
+        self.text_area.yview(tk.END)
 
     def logout(self):
         """Закрыть окно и вернуться на экран авторизации."""
