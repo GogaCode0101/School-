@@ -1,8 +1,8 @@
 #main_window.py
 
 import tkinter as tk
-from tkinter import messagebox
-
+from tkinter import filedialog, messagebox
+from database import add_schedule, get_schedule
 
 class MainWindow:
     def __init__(self, root, user):
@@ -29,6 +29,7 @@ class MainWindow:
             ("Скинуть домашнее задание", self.submit_homework),
             ("Посмотреть посещаемость", self.view_attendance),
             ("Посмотреть расписание", self.view_schedule),
+            ("Добавить расписание", self.add_schedule),  # Новая кнопка для добавления расписания
             ("Посмотреть успеваемость", self.view_grades),
             ("Чат с преподавателем", self.chat_with_teacher),
         ]
@@ -46,6 +47,36 @@ class MainWindow:
         # Кнопка выхода
         self.button_logout = tk.Button(self.root, text="Выйти", font=('Arial', 14), width=20, bg="#f44336", fg="white", command=self.logout)
         self.button_logout.grid(row=2, column=0, columnspan=2, pady=20)
+
+    def add_schedule(self):
+        """Добавить расписание в базу данных."""
+        file_path = filedialog.askopenfilename(title="Выберите текстовый файл расписания", filetypes=[("Text Files", "*.txt")])
+        if file_path:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    schedule_content = file.read()
+
+                # Сохранение в базу данных
+                add_schedule(self.user[0], schedule_content)  # user[0] - ID пользователя
+                messagebox.showinfo("Успех", "Расписание успешно добавлено!")
+            except Exception as e:
+                messagebox.showerror("Ошибка", f"Не удалось добавить расписание: {e}")
+
+    def view_schedule(self):
+        """Открыть окно для просмотра расписания."""
+        schedule = get_schedule(self.user[0])  # user[0] - ID пользователя
+
+        if schedule:
+            schedule_window = tk.Toplevel(self.root)
+            schedule_window.title("Ваше расписание")
+            schedule_window.geometry("400x300")
+
+            schedule_display = tk.Text(schedule_window, width=50, height=15, wrap=tk.WORD)
+            schedule_display.insert(tk.END, schedule)
+            schedule_display.config(state=tk.DISABLED)
+            schedule_display.pack(pady=20)
+        else:
+            messagebox.showinfo("Расписание", "Расписание пока не добавлено.")
 
     def view_homework(self):
         """Открыть окно для просмотра домашнего задания."""
@@ -112,41 +143,12 @@ class MainWindow:
         attendance_display.config(state=tk.DISABLED)
         attendance_display.pack(pady=20)
 
-    def view_schedule(self):
-        """Открыть окно для просмотра расписания."""
-        schedule_window = tk.Toplevel(self.root)
-        schedule_window.title("Ваше расписание")
-        schedule_window.geometry("400x300")
-
-        schedule_text = """
-        Понедельник:
-        8:30 - Математика
-        10:00 - Физика
-        12:00 - Химия
-
-        Вторник:
-        9:00 - Биология
-        11:00 - История
-        13:00 - Математика
-
-        Среда:
-        10:00 - Физика
-        12:00 - Химия
-        14:00 - Биология
-        """
-
-        schedule_display = tk.Text(schedule_window, width=50, height=15, wrap=tk.WORD)
-        schedule_display.insert(tk.END, schedule_text)
-        schedule_display.config(state=tk.DISABLED)
-        schedule_display.pack(pady=20)
-
     def view_grades(self):
         """Открыть окно для просмотра успеваемости."""
         grades_window = tk.Toplevel(self.root)
         grades_window.title("Успеваемость")
         grades_window.geometry("400x300")
 
-        # Пример успеваемости (можно заменить на данные из базы данных)
         grades_text = """
         Математика: 4
         Физика: 5
@@ -155,7 +157,6 @@ class MainWindow:
         История: 4
         """
 
-        # Отображаем успеваемость в Text виджете
         grades_display = tk.Text(grades_window, width=50, height=15, wrap=tk.WORD)
         grades_display.insert(tk.END, grades_text)
         grades_display.config(state=tk.DISABLED)
