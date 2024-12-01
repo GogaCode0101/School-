@@ -19,7 +19,12 @@ def initialize_database():
                             login TEXT,
                             password TEXT)''')
 
-        # Если нужно, можно добавить другие таблицы или подготовить данные
+        # Создаем таблицу расписания, если она не существует
+        cursor.execute('''CREATE TABLE IF NOT EXISTS schedules (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            user_id INTEGER,
+                            schedule TEXT,
+                            FOREIGN KEY (user_id) REFERENCES users(id))''')
 
         # Сохраняем изменения и закрываем соединение
         conn.commit()
@@ -63,3 +68,34 @@ def authenticate_user(login, password):
     except sqlite3.Error as e:
         print(f"Ошибка базы данных: {e}")
         raise Exception(f"Произошла ошибка при аутентификации пользователя: {e}")
+
+def add_schedule(user_id, schedule_content):
+    """Добавить расписание в базу данных."""
+    try:
+        conn = sqlite3.connect('school_database.db')
+        cursor = conn.cursor()
+
+        cursor.execute('''INSERT INTO schedules (user_id, schedule) VALUES (?, ?)''',
+                       (user_id, schedule_content))
+        conn.commit()
+        conn.close()
+
+    except sqlite3.Error as e:
+        print(f"Ошибка базы данных: {e}")
+        raise Exception(f"Произошла ошибка при добавлении расписания: {e}")
+
+def get_schedule(user_id):
+    """Получить расписание из базы данных."""
+    try:
+        conn = sqlite3.connect('school_database.db')
+        cursor = conn.cursor()
+
+        cursor.execute('''SELECT schedule FROM schedules WHERE user_id = ? ORDER BY id DESC LIMIT 1''', (user_id,))
+        result = cursor.fetchone()
+
+        conn.close()
+        return result[0] if result else None
+
+    except sqlite3.Error as e:
+        print(f"Ошибка базы данных: {e}")
+        raise Exception(f"Произошла ошибка при получении расписания: {e}")
