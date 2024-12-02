@@ -2,7 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk
-from database import add_user
+from database import add_user, add_student  # Импортируем add_student
 from messages import show_error, show_success
 from validators import is_valid_birthdate
 
@@ -10,14 +10,14 @@ from validators import is_valid_birthdate
 class SchoolRegistrationApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Регистрация нового ученика")
+        self.root.title("Регистрация нового учителя")
 
         # Заголовок окна
-        self.title_label = tk.Label(self.root, text="Регистрация нового ученика", font=("Arial", 16))
+        self.title_label = tk.Label(self.root, text="Регистрация нового учителя", font=("Arial", 16))
         self.title_label.grid(row=0, column=0, columnspan=2, pady=10)
 
         # Метки и поля ввода
-        self.name_label = tk.Label(self.root, text="ФИО ученика:")
+        self.name_label = tk.Label(self.root, text="ФИО учителя:")
         self.name_label.grid(row=1, column=0, padx=10, pady=5)
         self.name_entry = tk.Entry(self.root, width=30)
         self.name_entry.grid(row=1, column=1, padx=10, pady=5)
@@ -32,13 +32,12 @@ class SchoolRegistrationApp:
         self.contact_entry = tk.Entry(self.root, width=30)
         self.contact_entry.grid(row=3, column=1, padx=10, pady=5)
 
-        self.class_label = tk.Label(self.root, text="Класс ученика:")
+        self.class_label = tk.Label(self.root, text="Классы учителя:")
         self.class_label.grid(row=4, column=0, padx=10, pady=5)
 
         # Создаем выпадающий список для выбора класса
         self.class_combo = ttk.Combobox(self.root,
-                                        values=["1-А", "1-Б", "2-А", "2-Б", "3-А", "3-Б", "4-А", "4-Б", "5-А", "5-Б",
-                                                "6-А", "6-Б"])
+                                        values=["1-4", "5-9", "10-11"])
         self.class_combo.grid(row=4, column=1, padx=10, pady=5)
         self.class_combo.set("5-А")  # Устанавливаем значение по умолчанию
 
@@ -56,6 +55,10 @@ class SchoolRegistrationApp:
         # Кнопка для отправки заявки
         self.submit_button = tk.Button(self.root, text="Отправить заявку", command=self.submit_application)
         self.submit_button.grid(row=7, column=0, columnspan=2, pady=20)
+
+        # Кнопка для добавления ученика
+        self.add_student_button = tk.Button(self.root, text="Добавить ученика", command=self.add_student)
+        self.add_student_button.grid(row=8, column=0, columnspan=2, pady=20)
 
     def submit_application(self):
         # Получаем данные из полей
@@ -83,6 +86,52 @@ class SchoolRegistrationApp:
             self.root.destroy()  # Закрытие окна регистрации после успешной отправки
         except Exception as e:
             show_error("Ошибка базы данных", f"Произошла ошибка при добавлении пользователя: {str(e)}")
+
+    def add_student(self):
+        # Окно для добавления ученика
+        add_student_window = tk.Toplevel(self.root)
+        add_student_window.title("Добавить ученика")
+        add_student_window.geometry("400x300")
+
+        # Выбор класса
+        self.class_label = tk.Label(add_student_window, text="Выберите класс:")
+        self.class_label.grid(row=0, column=0, padx=10, pady=5)
+
+        self.class_combo = ttk.Combobox(add_student_window, values=[str(i) for i in range(1, 12)])
+        self.class_combo.grid(row=0, column=1, padx=10, pady=5)
+
+        # Выбор буквы класса
+        self.section_label = tk.Label(add_student_window, text="Выберите букву класса:")
+        self.section_label.grid(row=1, column=0, padx=10, pady=5)
+
+        self.section_combo = ttk.Combobox(add_student_window, values=["а", "б", "в", "г", "д", "е"])
+        self.section_combo.grid(row=1, column=1, padx=10, pady=5)
+
+        # Ввод ФИО ученика
+        self.name_label = tk.Label(add_student_window, text="ФИО ученика:")
+        self.name_label.grid(row=2, column=0, padx=10, pady=5)
+
+        self.student_name_entry = tk.Entry(add_student_window, width=30)
+        self.student_name_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        # Кнопка для добавления ученика
+        self.add_button = tk.Button(add_student_window, text="Добавить ученика", command=lambda: self.submit_student(add_student_window))
+        self.add_button.grid(row=3, column=0, columnspan=2, pady=20)
+
+    def submit_student(self, add_student_window):
+        student_class = self.class_combo.get() + self.section_combo.get()
+        student_name = self.student_name_entry.get()
+
+        if not student_name:
+            show_error("Ошибка", "ФИО ученика обязательно!")
+            return
+
+        try:
+            add_student(student_class, student_name)
+            show_success("Успех", f"Ученик {student_name} успешно добавлен в класс {student_class}!")
+            add_student_window.destroy()
+        except Exception as e:
+            show_error("Ошибка базы данных", f"Произошла ошибка при добавлении ученика: {str(e)}")
 
     def run(self):
         self.root.mainloop()
