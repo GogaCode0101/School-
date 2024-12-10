@@ -6,14 +6,8 @@ from tkinter import filedialog, messagebox
 from database import add_schedule, get_schedule, get_users, get_grades
 
 
-
 class MainWindow:
     def __init__(self, root, user):
-        """
-        Конструктор главного окна после авторизации.
-        :param root: Главное окно приложения.
-        :param user: Информация о текущем пользователе.
-        """
         self.root = root
         self.user = user
         self.root.title(f"Личный кабинет - {user[1]}")
@@ -32,21 +26,21 @@ class MainWindow:
             ("Скинуть домашнее задание", self.submit_homework),
             ("Посмотреть посещаемость", self.view_attendance),
             ("Посмотреть расписание", self.view_schedule),
-            ("Добавить расписание", self.add_schedule),  # Новая кнопка для добавления расписания
+            ("Добавить расписание", self.add_schedule),
             ("Посмотреть успеваемость", self.view_grades),
             ("Чат с учениками", self.chat_with_teacher),
-            ("Добавить оценку", self.add_grade_window),  # Кнопка для добавления оценки
-            ("Отправить документ", self.send_document)  # Новая кнопка для отправки документа
+            ("Добавить оценку", self.add_grade_window),
+            ("Отправить документ", self.send_document),
+            ("Выгрузить документ", self.download_document)  # Вставили новую кнопку
         ]
 
-        # Размещение кнопок в сетке
         row, col = 0, 0
         for text, command in actions:
             btn = tk.Button(self.buttons_frame, text=text, width=30, command=command, font=('Arial', 12), bg="#4CAF50",
                             fg="white")
             btn.grid(row=row, column=col, pady=5, padx=5)
             row += 1
-            if row > 2:  # после 3 кнопок начинаем новую колонку
+            if row > 2:
                 row = 0
                 col += 1
 
@@ -55,24 +49,38 @@ class MainWindow:
                                        command=self.logout)
         self.button_logout.grid(row=2, column=0, columnspan=2, pady=20)
 
+    def download_document(self):
+        """Выгрузить документ из базы данных."""
+        try:
+            document = get_document_from_db(self.user[0])  # Пример, замените на свою функцию
+            if not document:
+                messagebox.showinfo("Документ", "Документ не найден.")
+                return
+
+            # Выбор пути для сохранения файла
+            file_path = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                     filetypes=[("Text Files", "*.txt")],
+                                                     title="Сохранить документ как")
+
+            if file_path:
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    file.write(document)
+                messagebox.showinfo("Успех", "Документ успешно выгружен!")
+            else:
+                messagebox.showwarning("Отмена", "Вы не выбрали путь для сохранения!")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось выгрузить документ: {e}")
+
     def send_document(self):
         """Открыть окно для отправки документа."""
-        # Окно выбора файла
         file_path = filedialog.askopenfilename(title="Выберите документ для отправки",
                                                filetypes=[("Text Files", "*.txt")])
-
         if file_path:
             try:
-                # Открываем файл и отправляем его (например, сохраняем в базу данных или на диск)
                 with open(file_path, 'r', encoding='utf-8') as file:
                     document_content = file.read()
 
                 # Допустим, сохраняем этот документ в базе данных или на сервере
-                # add_document_to_db(self.user[0], document_content)  # Пример для добавления в базу данных
-                # Или сохраняем файл на диск
-                # with open(f"documents/{self.user[0]}_{file_path.split('/')[-1]}", 'w', encoding='utf-8') as f:
-                #     f.write(document_content)
-
                 messagebox.showinfo("Успех", "Документ успешно отправлен!")
             except Exception as e:
                 messagebox.showerror("Ошибка", f"Не удалось отправить документ: {e}")
